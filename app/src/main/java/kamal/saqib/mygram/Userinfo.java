@@ -1,6 +1,5 @@
 package kamal.saqib.mygram;
 
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -45,6 +44,9 @@ public class Userinfo {
 
     public void add_url(String s){
        this.urllist.add(s);
+    }
+    public void remove_url(int i){
+        this.urllist.remove(i);
     }
     public ArrayList<String> get_urllist(){
 

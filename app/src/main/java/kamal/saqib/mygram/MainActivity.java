@@ -39,20 +39,16 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener ,View.OnKeyListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnKeyListener {
 
     EditText email;
-    EditText password,repassword;
-    TextView signin,register;
+    EditText password, repassword;
+    TextView signin, register;
     FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog;
-    EditText name,address;
+    EditText name, address;
     DatabaseReference databaseReference;
-    RelativeLayout relativeLayout;
-    LinearLayout linearLayout;
-    Bitmap selectedimage;
-    Uri selectedimagepath,imgurl;
-    String imagename,profilepicurl,na,add;
+    String na, add;
     StorageReference storageReference;
     FirebaseStorage firebaseStorage;
     Userinfo userinfo;
@@ -68,17 +64,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         signin = (TextView) findViewById(R.id.signin);
         name = (EditText) findViewById(R.id.name);
         address = (EditText) findViewById(R.id.address);
-        repassword=(EditText) findViewById(R.id.repassword);
+        repassword = (EditText) findViewById(R.id.repassword);
 
 
-        firebaseAuth=FirebaseAuth.getInstance();
-        databaseReference= FirebaseDatabase.getInstance().getReference();
-        firebaseStorage= FirebaseStorage.getInstance();
-        storageReference=firebaseStorage.getInstance().getReference();
+        firebaseAuth = FirebaseAuth.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getInstance().getReference();
 
-        progressDialog=new ProgressDialog(this);
+        progressDialog = new ProgressDialog(this);
 
-        final android.support.v7.app.ActionBar actionBar =getSupportActionBar();
+        final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
 
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009a9a")));
 
@@ -86,56 +82,52 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         register.setOnClickListener(this);
         signin.setOnClickListener(this);
         address.setOnKeyListener(this);
-       // profilepicupload.setOnClickListener(this);
     }
 
-    public void registernew()
-    {
+    public void registernew() {
         progressDialog.setMessage("Registering ....");
         progressDialog.show();
-        final String username=email.getText().toString();
-        final String pass=password.getText().toString();
+        final String username = email.getText().toString();
+        final String pass = password.getText().toString();
 
-        final String repass=repassword.getText().toString();
+        final String repass = repassword.getText().toString();
 
-        na=name.getText().toString();
-         add=address.getText().toString();
+        na = name.getText().toString();
+        add = address.getText().toString();
 
-       if(!pass.equals(repass)){
-           Toast.makeText(getApplicationContext(),"Password Didn't Match ",Toast.LENGTH_LONG).show();
+        if (!pass.equals(repass)) {
+            Toast.makeText(getApplicationContext(), "Password Didn't Match ", Toast.LENGTH_LONG).show();
             progressDialog.hide();
-            return ;
+            return;
         }
 
 
-        if(username.length()==0 || password.length()==0 || na.length()==0 || add.length()==0 )
-        {
-            Toast.makeText(getApplicationContext(),"Something Went Wrong",Toast.LENGTH_LONG).show();
+        if (username.length() == 0 || password.length() == 0 || na.length() == 0 || add.length() == 0) {
+            Toast.makeText(getApplicationContext(), "Something Went Wrong", Toast.LENGTH_LONG).show();
             progressDialog.hide();
-            return ;
+            return;
         }
 
 
-        firebaseAuth.createUserWithEmailAndPassword(username,pass).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
+        firebaseAuth.createUserWithEmailAndPassword(username, pass).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
 
-                    if(task.isSuccessful()) {
+                if (task.isSuccessful()) {
 
-                        FirebaseUser user=firebaseAuth.getCurrentUser();
-                        userinfo=new Userinfo(na,add);
-                        databaseReference.child(user.getUid()).setValue(userinfo);
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+                    userinfo = new Userinfo(na, add);
+                    databaseReference.child(user.getUid()).setValue(userinfo);
 
 
-                        Toast.makeText(getApplicationContext(), "Registration Complete", Toast.LENGTH_SHORT).show();
-                        finish();
-                        startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                    Toast.makeText(getApplicationContext(), "Registration Complete", Toast.LENGTH_SHORT).show();
+                    finish();
+                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
 
-                    }
-                    else
-                        progressDialog.hide();
-                        Toast.makeText(getApplicationContext(),"Something Went Wrong while logging in" ,Toast.LENGTH_LONG).show();
-                }
+                } else
+                    progressDialog.hide();
+                Toast.makeText(getApplicationContext(), "Something Went Wrong while logging in", Toast.LENGTH_LONG).show();
+            }
         });
 
     }
@@ -143,19 +135,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if(v==register) {
+        if (v == register) {
             registernew();
 
-        }
-
-        else if(v==signin){
-            //open new intent
-            //finish();
-            startActivity(new Intent(getApplicationContext(),Login.class));
+        } else if (v == signin) {
+            startActivity(new Intent(getApplicationContext(), Login.class));
         }
 
     }
-
 
 
     @Override
@@ -166,39 +153,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /*uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                @SuppressWarnings("VisibleForTests")
-                final Uri url1=taskSnapshot.getDownloadUrl();
-                imgurl=url1;
-                profilepicurl=imgurl.toString();
-                Log.i("Profilepicurl",profilepicurl);
-               register.setEnabled(true);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(),"Unable to upload Image",Toast.LENGTH_SHORT).show();
-
-            }
-        });*/
 
 }

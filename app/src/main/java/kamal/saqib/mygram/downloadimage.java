@@ -4,20 +4,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
-import android.os.AsyncTask;
-import android.os.StrictMode;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,11 +16,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,18 +32,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class downloadimage extends AppCompatActivity {
 
-    ImageView imageView;
+
     FirebaseStorage firebaseStorage;
-    StorageReference storageReference, childref;
     DatabaseReference databaseReference;
     FirebaseAuth firebaseAuth;
     ArrayList<String> imageurlist;
@@ -66,13 +51,13 @@ public class downloadimage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_downloadimage);
 
-        final android.support.v7.app.ActionBar actionBar =getSupportActionBar();
+        final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009a9a")));
 
 
-
-
         final GridView gridView = (GridView) findViewById(R.id.gridview);
+
+        progressDialog = new ProgressDialog(this);
 
 
         firebaseStorage = FirebaseStorage.getInstance();
@@ -113,37 +98,79 @@ public class downloadimage extends AppCompatActivity {
             }
         });
 
+        final CharSequence options[] = new CharSequence[]{"Set As Profie Picture", "Delete"};
+
 
         gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                new android.support.v7.app.AlertDialog.Builder(downloadimage.this).setTitle("Profile Picture").
-                        setMessage("Do you want to set this Image as Profile Picture").
-                        setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                defaultprofilepic = position;
-                                updateprofilepic();
-                            }
-                        }).
-                        setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (defaultprofilepic == position) {
-                                    defaultprofilepic = -1;
-                                    updateprofilepic();
-                                }
-                                Log.i("IMAGEURL",imageurlist.get(position));
-                                StorageReference photoRef = firebaseStorage.getReferenceFromUrl(imageurlist.get(position));
+                android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(downloadimage.this);
+                builder.setTitle("Choose an option");
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0) {
 
-                                photoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.i("Deleted ","Successfully");
-                                    }
-                                });
-                            }
-                        }).show().setIcon(R.drawable.alertboximage);
+                            new android.support.v7.app.AlertDialog.Builder(downloadimage.this).setTitle("Profile Picture").
+                                    setMessage("Do you want to set this Image as Profile Picture").
+                                    setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            defaultprofilepic = position;
+                                            updateprofilepic();
+                                        }
+                                    }).
+                                    setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (defaultprofilepic == position) {
+                                                defaultprofilepic = -1;
+                                                updateprofilepic();
+                                            }
+                                        }
+
+                                    }).show().setIcon(R.drawable.alertboximage);
+                        } else if (which == 1) {
+
+                            progressDialog.setMessage("Deleting");
+                            progressDialog.show();
+                            StorageReference photoRef = firebaseStorage.getReferenceFromUrl(imageurlist.get(position));
+
+                            photoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+
+                                    databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                                            Userinfo userinfo = dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
+                                            userinfo.remove_url(position);
+                                            databaseReference.child(user.getUid()).setValue(userinfo);
+                                            progressDialog.hide();
+                                            finish();
+                                            startActivity(new Intent(getApplicationContext(), downloadimage.class));
+
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getApplicationContext(), "Unable To delete the photo", Toast.LENGTH_SHORT).show();
+                                    progressDialog.hide();
+                                }
+                            });
+                        }
+
+                    }
+                });
+                builder.show();
                 return true;
             }
         });
@@ -159,11 +186,7 @@ public class downloadimage extends AppCompatActivity {
     }
 
 
-
-
-
-
-    public class ImageListAdapter extends ArrayAdapter{
+    public class ImageListAdapter extends ArrayAdapter {
 
         private Context context;
         private LayoutInflater inflater;

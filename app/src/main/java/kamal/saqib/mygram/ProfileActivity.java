@@ -1,7 +1,5 @@
 package kamal.saqib.mygram;
 
-import android.animation.AnimatorInflater;
-import android.animation.AnimatorSet;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -29,22 +27,23 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+
 import java.lang.Object;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ProfileActivity extends AppCompatActivity implements View.OnClickListener{
+public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
-    TextView Email,Username,Address;
+    TextView Email, Username;
     FirebaseAuth firebaseAuth;
     DatabaseReference databaseReference;
     FirebaseStorage firebaseStorage;
-    String username,addr,profilepicaddr;
-    ActionBar actionBar;
-    FloatingActionButton fab,fab1,fab2;
+    String username, addr;
+    FloatingActionButton fab, fab1, fab2;
     boolean isFABOpen;
     ImageView profilepic;
     int ppno;
+    ArrayList<String> urllist;
 
 
     @Override
@@ -52,21 +51,28 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        Email=(TextView) findViewById(R.id.text);
-        Username=(TextView) findViewById(R.id.name);
-        profilepic=(ImageView) findViewById(R.id.profilepic);
-        //Address=(TextView) findViewById(R.id.name);
+        Email = (TextView) findViewById(R.id.text);
+        Username = (TextView) findViewById(R.id.name);
+        profilepic = (ImageView) findViewById(R.id.profilepic);
+
+        profilepic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), show_single_image.class);
+                if (ppno != -1)
+                    i.putExtra("Url", urllist.get(ppno));
+                else
+                    i.putExtra("Url", "-1");
+                startActivity(i);
+            }
+        });
 
 
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
 
-
-        firebaseAuth= FirebaseAuth.getInstance();
-        firebaseStorage=FirebaseStorage.getInstance();
-
-        final android.support.v7.app.ActionBar actionBar =getSupportActionBar();
-
+        final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009a9a")));
-
 
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -75,7 +81,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         final Animation fab_open = AnimationUtils.loadAnimation(this, R.anim.fab_open);
         final Animation fab_close = AnimationUtils.loadAnimation(this, R.anim.fab_close);
-        isFABOpen=false;
+        isFABOpen = false;
         closeFABMenu();
         fab1.setOnClickListener(this);
         fab2.setOnClickListener(this);
@@ -83,11 +89,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!isFABOpen){
+                if (!isFABOpen) {
                     fab1.startAnimation(fab_open);
                     fab2.startAnimation(fab_open);
                     showFABMenu();
-                }else{
+                } else {
                     fab2.startAnimation(fab_close);
                     fab1.startAnimation(fab_close);
                     closeFABMenu();
@@ -96,47 +102,30 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         });
 
 
-
-
-
-
-
-        //Email.setText(firebaseAuth.getCurrentUser().getEmail().toString());
-
-        databaseReference= FirebaseDatabase.getInstance().getReference();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                FirebaseUser user=firebaseAuth.getCurrentUser();
-                Userinfo userinfo=dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                Userinfo userinfo = dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
 
-                username=userinfo.getname();
-                addr=userinfo.getAddress();
-                ppno=userinfo.getDefaultprofilepic();
-               username=toTitleCase(username);
+                username = userinfo.getname();
+                addr = userinfo.getAddress();
+                ppno = userinfo.getDefaultprofilepic();
+                username = toTitleCase(username);
 
-                ArrayList<String> urllist=userinfo.get_urllist();
+                urllist = userinfo.get_urllist();
 
-              //  Random rand=new Random();
-               // if(ppno<0 && urllist.size()!=0){
-                 //   while(ppno<0)
-                  //      ppno=rand.nextInt(urllist.size());
-                //}
-
-                
-
-                //actionBar.setTitle(username);
                 Username.setText(username);
-                //Address.setText(addr);
-               // Log.i("IMAGEURL",profilepicaddr);
 
-                if(ppno>=0) {
+
+                if (ppno >= 0) {
                     RequestOptions options = new RequestOptions();
                     options.fitCenter();
                     Glide.with(getApplicationContext()).load(urllist.get(ppno)).apply(options).into(profilepic);
-                }
-                else profilepic.setImageResource(R.drawable.user_user);
+                } else
+                    profilepic.setImageResource(R.drawable.user_user);
             }
 
             @Override
@@ -144,43 +133,22 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
             }
         });
-
-
-
-
-
-
-
     }
 
-    /*public void savedata()
-    {
-        String na=name.getText().toString();
-        String add=address.getText().toString();
-
-        Userinfo userinfo=new Userinfo(na,add);
-
-        FirebaseUser user=firebaseAuth.getCurrentUser();
-
-        databaseReference.child(user.getUid()).setValue(userinfo);
-
-        Toast.makeText(this,"Information Saved",Toast.LENGTH_SHORT).show();
-
-    }*/
 
     @Override
     public void onClick(View v) {
 
-        if(v==fab1){
+        if (v == fab1) {
             startActivity(new Intent(getApplicationContext(), InsertImage.class));
 
-        }
-        if(v==fab2){
-            startActivity(new Intent(getApplicationContext(),capture_image.class));
+        } else if (v == fab2) {
+            startActivity(new Intent(getApplicationContext(), capture_image.class));
         }
 
 
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.profile_page, menu);
@@ -190,55 +158,50 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        int id=item.getItemId();
+        int id = item.getItemId();
 
-        if(id==R.id.show_user){
-            Intent i=new Intent(getApplicationContext(),UsersList.class);
-            i.putExtra("username",username);
-
+        if (id == R.id.show_user) {
+            Intent i = new Intent(getApplicationContext(), UsersList.class);
+            i.putExtra("username", username);
             startActivity(i);
-
             return true;
-        }
-
-        else if(id==R.id.view_images){
-            startActivity(new Intent(getApplicationContext(),downloadimage.class));
+        } else if (id == R.id.view_images) {
+            startActivity(new Intent(getApplicationContext(), downloadimage.class));
             return true;
-        }
-        else if(id==R.id.log_out){
-            Toast.makeText(getApplicationContext(),"Logged Out Succesfully" ,Toast.LENGTH_LONG).show();
+        } else if (id == R.id.log_out) {
+            Toast.makeText(getApplicationContext(), "Logged Out Succesfully", Toast.LENGTH_LONG).show();
             firebaseAuth.signOut();
             finish();
-            startActivity(new Intent(getApplicationContext(),Login.class));
+            startActivity(new Intent(getApplicationContext(), Login.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
 
     }
 
-    public void showFABMenu(){
-        isFABOpen=true;
+    public void showFABMenu() {
+        isFABOpen = true;
         fab1.setVisibility(View.VISIBLE);
         fab2.setVisibility(View.VISIBLE);
     }
 
-    public void closeFABMenu(){
-        isFABOpen=false;
+    public void closeFABMenu() {
+        isFABOpen = false;
         fab1.setVisibility(View.GONE);
         fab2.setVisibility(View.GONE);
     }
 
 
     public static String toTitleCase(String s) {
-        char a=s.charAt(0);
-        a=Character.toUpperCase(a);
-        String str =Character.toString(a);
-        for(int i =1;i<s.length();i++) {
+        char a = s.charAt(0);
+        a = Character.toUpperCase(a);
+        String str = Character.toString(a);
+        for (int i = 1; i < s.length(); i++) {
             a = s.charAt(i);
-            if(a==' ')
-                str = str+Character.toString(a)+Character.toUpperCase(s.charAt(++i));
+            if (a == ' ')
+                str = str + Character.toString(a) + Character.toUpperCase(s.charAt(++i));
             else
-                str =str+(Character.toLowerCase(a));
+                str = str + (Character.toLowerCase(a));
         }
         return str;
     }

@@ -31,9 +31,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-public class InsertImage extends AppCompatActivity implements View.OnClickListener{
+public class InsertImage extends AppCompatActivity implements View.OnClickListener {
     ImageView imageview;
-    Button submit,retry;
+    Button submit, retry;
     FirebaseStorage firebaseStorage;
     StorageReference storageReference;
     FirebaseAuth firebaseAuth;
@@ -50,19 +50,19 @@ public class InsertImage extends AppCompatActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_insert_image);
 
-        final android.support.v7.app.ActionBar actionBar =getSupportActionBar();
+        final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009a9a")));
 
-        imageview=(ImageView) findViewById(R.id.imageview);
-        submit=(Button) findViewById(R.id.submit);
-        retry=(Button) findViewById(R.id.retry);
-        progressDialog=new ProgressDialog(this);
+        imageview = (ImageView) findViewById(R.id.imageview);
+        submit = (Button) findViewById(R.id.submit);
+        retry = (Button) findViewById(R.id.retry);
+        progressDialog = new ProgressDialog(this);
 
 
-        firebaseAuth= FirebaseAuth.getInstance();
-        firebaseStorage=FirebaseStorage.getInstance();
-        storageReference=firebaseStorage.getInstance().getReference();
-        databaseReference= FirebaseDatabase.getInstance().getReference();
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getInstance().getReference();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
 
         submit.setOnClickListener(this);
         retry.setOnClickListener(this);
@@ -70,28 +70,23 @@ public class InsertImage extends AppCompatActivity implements View.OnClickListen
         insertpic();
 
 
-
     }
 
-    public void insertpic()
-    {
-        Intent i=new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(i,1);
+    public void insertpic() {
+        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, 1);
     }
 
     @Override
     public void onClick(View v) {
 
-        if(v==retry)
+        if (v == retry)
             insertpic();
-        else if(v==submit){
+        else if (v == submit) {
 
-            if(selectedimagepath==null)
-            {
-                Toast.makeText(getApplicationContext(),"First Select An image",Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
+            if (selectedimagepath == null) {
+                Toast.makeText(getApplicationContext(), "First Select An image", Toast.LENGTH_SHORT).show();
+            } else {
 
                 progressDialog.setMessage("Uploading");
                 progressDialog.show();
@@ -101,18 +96,16 @@ public class InsertImage extends AppCompatActivity implements View.OnClickListen
                 uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        //Toast.makeText(getApplicationContext(),"Photo Uploaded Succesfully",Toast.LENGTH_SHORT).show();
-                        @SuppressWarnings("VisibleForTests") final Uri url1=taskSnapshot.getDownloadUrl();
-                        url=url1;
-                        Toast.makeText(getApplicationContext(),"Upload Successful",Toast.LENGTH_SHORT).show();
-
+                        @SuppressWarnings("VisibleForTests") final Uri url1 = taskSnapshot.getDownloadUrl();
+                        url = url1;
+                        Toast.makeText(getApplicationContext(), "Upload Successful", Toast.LENGTH_SHORT).show();
 
 
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(),"Something Went Wrong",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Something Went Wrong", Toast.LENGTH_SHORT).show();
 
                     }
                 }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -123,8 +116,8 @@ public class InsertImage extends AppCompatActivity implements View.OnClickListen
                         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                FirebaseUser user=firebaseAuth.getCurrentUser();
-                                Userinfo userinfo=dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
+                                FirebaseUser user = firebaseAuth.getCurrentUser();
+                                Userinfo userinfo = dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
                                 userinfo.add_url(url.toString());
                                 databaseReference.child(user.getUid()).setValue(userinfo);
                             }
@@ -134,16 +127,12 @@ public class InsertImage extends AppCompatActivity implements View.OnClickListen
 
                             }
                         });
-                       // databaseReference.removeEventListener();
 
                         progressDialog.dismiss();
                         finish();
                         startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
                     }
                 });
-
-
-
 
 
             }
@@ -154,19 +143,19 @@ public class InsertImage extends AppCompatActivity implements View.OnClickListen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 
-        if(requestCode==1 && resultCode==RESULT_OK && data!=null){
-            selectedimagepath=data.getData();
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+            selectedimagepath = data.getData();
 
             try {
-                selectedimage=MediaStore.Images.Media.getBitmap(this.getContentResolver(),selectedimagepath);
+                selectedimage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedimagepath);
                 imageview.setImageBitmap(selectedimage);
 
-                String i=selectedimagepath.toString();
+                String i = selectedimagepath.toString();
 
-                imagename=i.substring(i.lastIndexOf("/")+1);
+                imagename = i.substring(i.lastIndexOf("/") + 1);
 
             } catch (Exception e) {
-                Toast.makeText(getApplicationContext(),"Something went wrong",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
             }
         }
     }

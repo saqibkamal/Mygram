@@ -27,13 +27,13 @@ public class show_others_images extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_others_images);
 
-        final android.support.v7.app.ActionBar actionBar =getSupportActionBar();
+        final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009a9a")));
 
-        Bundle b=this.getIntent().getExtras();
-        url_list=b.getStringArrayList("Urls");
+        Bundle b = this.getIntent().getExtras();
+        url_list = b.getStringArrayList("Urls");
 
-        gridView=(GridView) findViewById(R.id.gridview);
+        gridView = (GridView) findViewById(R.id.gridview);
 
         gridView.setAdapter(
                 new ImageListAdapter(show_others_images.this, url_list)
@@ -42,11 +42,8 @@ public class show_others_images extends AppCompatActivity {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-
-
-                Intent i=new Intent(getApplicationContext(),show_single_image.class);
-                i.putExtra("Url",url_list.get(position));
+                Intent i = new Intent(getApplicationContext(), show_single_image.class);
+                i.putExtra("Url", url_list.get(position));
                 startActivity(i);
             }
         });
@@ -64,10 +61,8 @@ public class show_others_images extends AppCompatActivity {
 
         public ImageListAdapter(Context context, ArrayList<String> imageUrls) {
             super(context, R.layout.image_view, imageUrls);
-
             this.context = context;
             this.imageUrls = imageUrls;
-
             inflater = LayoutInflater.from(context);
         }
 

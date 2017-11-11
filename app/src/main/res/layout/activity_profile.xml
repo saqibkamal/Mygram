@@ -57,7 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="140dp"
+        android:layout_marginBottom="145dp"
         android:layout_marginLeft="340dp"
         android:clickable="true"
         android:src="@drawable/abcdd"
