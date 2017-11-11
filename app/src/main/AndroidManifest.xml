@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="kamal.saqib.mygram">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="25" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ibytes"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".Login">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".UsersList" />
+        <activity android:name=".InsertImage" />
+        <activity android:name=".downloadimage" />
+        <activity android:name=".show_others_images" />
+        <activity android:name=".show_single_image" />
+        <activity android:name=".capture_image" />
+        <activity android:name=".reset_password" />
+        <activity android:name=".list_adapter" />
+        <activity android:name=".user_list_adapter"></activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/grdnt"
+    tools:context="kamal.saqib.mygram.InsertImage">
+
+    <ImageView
+        android:id="@+id/imageview"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:background="@android:color/transparent" />
+
+    <Button
+        android:id="@+id/submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/retry"
+        android:layout_alignBottom="@+id/retry"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="214dp"
+        android:layout_marginRight="214dp"
+        android:textColor="#d9e5f3"
+        android:textStyle="bold"
+        android:background="#009a9a"
+        android:text="Submit"
+        android:letterSpacing="0.2"/>
+
+
+    <Button
+        android:id="@+id/retry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="22dp"
+        android:layout_marginLeft="244dp"
+        android:layout_marginStart="244dp"
+        android:text="Retry"
+        android:textColor="#d9e5f3"
+        android:textStyle="bold"
+        android:background="#009a9a"
+        android:letterSpacing="0.2"/>
+
+</RelativeLayout>
+

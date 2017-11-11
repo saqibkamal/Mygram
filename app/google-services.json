@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "339374134446",
+    "firebase_url": "https://mygram-61f2e.firebaseio.com",
+    "project_id": "mygram-61f2e",
+    "storage_bucket": "mygram-61f2e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339374134446:android:c58f356b7c7402e9",
+        "android_client_info": {
+          "package_name": "kamal.saqib.mygram"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "339374134446-f9fig2klfc0h57m54902pn7igne932aj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQy5oWfwaQgklrkVwldUnGJg33hsBBm2A"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
