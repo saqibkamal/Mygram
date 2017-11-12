@@ -87,9 +87,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void registernew() {
         progressDialog.setMessage("Registering ....");
         progressDialog.show();
+        progressDialog.setCanceledOnTouchOutside(false);
+
         final String username = email.getText().toString();
         final String pass = password.getText().toString();
-
         final String repass = repassword.getText().toString();
 
         na = name.getText().toString();
@@ -119,14 +120,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     userinfo = new Userinfo(na, add);
                     databaseReference.child(user.getUid()).setValue(userinfo);
 
-
+                    progressDialog.hide();
                     Toast.makeText(getApplicationContext(), "Registration Complete", Toast.LENGTH_SHORT).show();
                     finish();
                     startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
 
-                } else
+                } else {
                     progressDialog.hide();
-                Toast.makeText(getApplicationContext(), "Something Went Wrong while logging in", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Something Went Wrong while logging in", Toast.LENGTH_LONG).show();
+                }
             }
         });
 

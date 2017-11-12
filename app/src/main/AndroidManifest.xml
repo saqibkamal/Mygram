@@ -15,7 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Login">
+        <activity android:name=".splash_activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,8 +31,8 @@
         <activity android:name=".show_single_image" />
         <activity android:name=".capture_image" />
         <activity android:name=".reset_password" />
-        <activity android:name=".list_adapter" />
-        <activity android:name=".user_list_adapter"></activity>
+        <activity android:name=".Mygram" />
+        <activity android:name=".Login"></activity>
     </application>
 
 </manifest>

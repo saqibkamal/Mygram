@@ -107,6 +107,7 @@ public class capture_image extends AppCompatActivity implements View.OnClickList
 
                 progressDialog.setMessage("Uploading");
                 progressDialog.show();
+                progressDialog.setCanceledOnTouchOutside(false);
 
                 StorageReference childRef = storageReference.child(imagename);
                 UploadTask uploadTask = childRef.putFile(selectedimagepath);

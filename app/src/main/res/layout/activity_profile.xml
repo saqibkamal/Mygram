@@ -1,40 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/grdnt"
-    tools:context="kamal.saqib.mygram.ProfileActivity">
+    android:background="@drawable/back1">
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profilepic"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/standard_55"
+        android:layout_marginLeft="120dp"
+        app:civ_border_color="#FF000000"
+        app:civ_border_width="2dp" />
 
     <TextView
-        android:id="@+id/name"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="-10dp"
+        android:id="@+id/name"
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textSize="30sp"
-        android:layout_marginTop="39dp"
-        android:layout_below="@+id/profilepic"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:textSize="24dp"
+        android:textStyle="bold"/>
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:id="@+id/address"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="14dp" />
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp"
+        android:id="@+id/email"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="14dp" />
+
+    <ImageView
+        android:id="@+id/view_images"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="100dp"
+        android:src="@drawable/view" />
+
+    <ImageView
+        android:id="@+id/view_user"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="170dp"
+        android:src="@drawable/logout" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-       android:layout_marginLeft="340dp"
+        android:layout_marginLeft="310dp"
         android:layout_marginBottom="30dp"
         android:clickable="true"
         android:src="@drawable/abc"
         android:layout_gravity="bottom|end"
-        android:backgroundTint="@android:color/white"
         android:scaleType="center"
         app:borderWidth="0dp"
+        android:layout_marginRight="20dp"
         android:layout_alignParentBottom="true" />
-
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab1"
@@ -45,10 +85,9 @@
         android:layout_marginLeft="340dp"
         android:clickable="true"
         android:src="@drawable/abcd"
-
         android:layout_gravity="bottom|end"
         android:scaleType="center"
-        android:backgroundTint="@android:color/white"
+        android:layout_marginRight="20dp"
         app:borderWidth="0dp"/>
 
 
@@ -60,26 +99,12 @@
         android:layout_marginBottom="145dp"
         android:layout_marginLeft="340dp"
         android:clickable="true"
+        android:layout_marginRight="20dp"
         android:src="@drawable/abcdd"
-
         android:layout_gravity="bottom|end"
         android:scaleType="center"
-        android:backgroundTint="@android:color/white"
         app:borderWidth="0dp"/>
 
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/profilepic"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        app:civ_border_width="2dp"
-        app:civ_border_color="#FF000000"
 
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
-
-
-
-</RelativeLayout>
+</FrameLayout>

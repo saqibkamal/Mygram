@@ -64,6 +64,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Vi
     public void login() {
         progressDialog.setMessage("Signing In ....");
         progressDialog.show();
+        progressDialog.setCanceledOnTouchOutside(false);
         final String username = email.getText().toString();
         final String pass = password.getText().toString();
 
@@ -85,7 +86,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Vi
                 if (task.isSuccessful()) {
                     Toast.makeText(getApplicationContext(), "Login Successful", Toast.LENGTH_SHORT).show();
                     finish();
-                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class).putExtra("Email",username));
                 } else
                     Toast.makeText(getApplicationContext(), "Incorrect Credentials", Toast.LENGTH_LONG).show();
             }

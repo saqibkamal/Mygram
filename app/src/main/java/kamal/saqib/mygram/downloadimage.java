@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -79,6 +80,7 @@ public class downloadimage extends AppCompatActivity {
                 );
 
 
+
             }
 
             @Override
@@ -110,9 +112,18 @@ public class downloadimage extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == 0) {
+                            String a="";boolean b;
+                            if(defaultprofilepic==position){
+                                a="The image is already your profile picture.Do you still want to keep the Image as your Profile Picture?";
+                                b=false;
+                            }
+                            else{
+                                a="Do you want to set this Image as Profile Picture";
+                                b=true;
+                            }
 
                             new android.support.v7.app.AlertDialog.Builder(downloadimage.this).setTitle("Profile Picture").
-                                    setMessage("Do you want to set this Image as Profile Picture").
+                                    setMessage(a).
                                     setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
@@ -132,40 +143,56 @@ public class downloadimage extends AppCompatActivity {
                                     }).show().setIcon(R.drawable.alertboximage);
                         } else if (which == 1) {
 
-                            progressDialog.setMessage("Deleting");
-                            progressDialog.show();
-                            StorageReference photoRef = firebaseStorage.getReferenceFromUrl(imageurlist.get(position));
-
-                            photoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-
-                                    databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            new android.support.v7.app.AlertDialog.Builder(downloadimage.this).setTitle("Delete").
+                                    setMessage("Are You Sure You Want to delete the image").
+                                    setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                         @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            FirebaseUser user = firebaseAuth.getCurrentUser();
-                                            Userinfo userinfo = dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
-                                            userinfo.remove_url(position);
-                                            databaseReference.child(user.getUid()).setValue(userinfo);
-                                            progressDialog.hide();
-                                            finish();
-                                            startActivity(new Intent(getApplicationContext(), downloadimage.class));
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            progressDialog.setMessage("Deleting");
+                                            progressDialog.show();
+                                            StorageReference photoRef = firebaseStorage.getReferenceFromUrl(imageurlist.get(position));
 
+                                            photoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+
+                                                    databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                                                            Userinfo userinfo = dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
+                                                            userinfo.remove_url(position);
+                                                            if(position==defaultprofilepic)
+                                                                userinfo.setDefaultprofilepic(-1);
+                                                            databaseReference.child(user.getUid()).setValue(userinfo);
+                                                            progressDialog.hide();
+                                                            finish();
+                                                            startActivity(new Intent(getApplicationContext(), downloadimage.class));
+
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                        }
+                                                    });
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(getApplicationContext(), "Unable To delete the photo", Toast.LENGTH_SHORT).show();
+                                                    progressDialog.hide();
+                                                }
+                                            });
                                         }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
+                                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(getApplicationContext(), "Unable To delete the photo", Toast.LENGTH_SHORT).show();
-                                    progressDialog.hide();
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
                                 }
-                            });
+                            }).show().setIcon(R.drawable.delete);
+
+
                         }
 
                     }

@@ -90,6 +90,7 @@ public class InsertImage extends AppCompatActivity implements View.OnClickListen
 
                 progressDialog.setMessage("Uploading");
                 progressDialog.show();
+                progressDialog.setCanceledOnTouchOutside(false);
 
                 StorageReference childRef = storageReference.child(imagename);
                 UploadTask uploadTask = childRef.putFile(selectedimagepath);

@@ -1,7 +1,9 @@
 package kamal.saqib.mygram;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -34,14 +36,14 @@ import java.util.Random;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
-    TextView Email, Username;
+    TextView Email, Username,address;
     FirebaseAuth firebaseAuth;
     DatabaseReference databaseReference;
     FirebaseStorage firebaseStorage;
     String username, addr;
     FloatingActionButton fab, fab1, fab2;
     boolean isFABOpen;
-    ImageView profilepic;
+    ImageView profilepic,viewimage,viewuser;
     int ppno;
     ArrayList<String> urllist;
 
@@ -51,9 +53,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        Email = (TextView) findViewById(R.id.text);
+        Email = (TextView) findViewById(R.id.email);
         Username = (TextView) findViewById(R.id.name);
         profilepic = (ImageView) findViewById(R.id.profilepic);
+        viewimage = (ImageView) findViewById(R.id.view_images);
+        viewuser = (ImageView) findViewById(R.id.view_user);
+        address = (TextView) findViewById(R.id.address);
+
 
         profilepic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,6 +76,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
+        Email.setText(firebaseAuth.getCurrentUser().getEmail().toString());
 
         final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009a9a")));
@@ -78,6 +85,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab1 = (FloatingActionButton) findViewById(R.id.fab1);
         fab2 = (FloatingActionButton) findViewById(R.id.fab2);
+
+        viewuser.setOnClickListener(this);
+        viewimage.setOnClickListener(this);
 
         final Animation fab_open = AnimationUtils.loadAnimation(this, R.anim.fab_open);
         final Animation fab_close = AnimationUtils.loadAnimation(this, R.anim.fab_close);
@@ -114,10 +124,17 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 addr = userinfo.getAddress();
                 ppno = userinfo.getDefaultprofilepic();
                 username = toTitleCase(username);
-
                 urllist = userinfo.get_urllist();
 
+                Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/abc.otf");
+                Typeface typeface1 = Typeface.createFromAsset(getAssets(), "fonts/abc1.otf");
+
+                Username.setTypeface(typeface);
                 Username.setText(username);
+                address.setText(addr);
+                address.setTypeface(typeface1);
+                Email.setTypeface(typeface1);
+
 
 
                 if (ppno >= 0) {
@@ -145,6 +162,15 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         } else if (v == fab2) {
             startActivity(new Intent(getApplicationContext(), capture_image.class));
         }
+        else if(v==viewuser){
+            Intent i = new Intent(getApplicationContext(), UsersList.class);
+            i.putExtra("username", username);
+            startActivity(i);
+        }
+        else if(v==viewimage){
+            startActivity(new Intent(getApplicationContext(), downloadimage.class));
+
+        }
 
 
     }
@@ -159,20 +185,24 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
+         if (id == R.id.log_out) {
+             new android.support.v7.app.AlertDialog.Builder(ProfileActivity.this).setTitle("Log Out").
+                     setMessage("Are you sure you want to exit ?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                     Toast.makeText(getApplicationContext(), "Logged Out Succesfully", Toast.LENGTH_LONG).show();
+                     firebaseAuth.signOut();
+                     finish();
+                     startActivity(new Intent(getApplicationContext(), Login.class));
+                 }
+             }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                     dialog.dismiss();
+                 }
+             }).show();
 
-        if (id == R.id.show_user) {
-            Intent i = new Intent(getApplicationContext(), UsersList.class);
-            i.putExtra("username", username);
-            startActivity(i);
-            return true;
-        } else if (id == R.id.view_images) {
-            startActivity(new Intent(getApplicationContext(), downloadimage.class));
-            return true;
-        } else if (id == R.id.log_out) {
-            Toast.makeText(getApplicationContext(), "Logged Out Succesfully", Toast.LENGTH_LONG).show();
-            firebaseAuth.signOut();
-            finish();
-            startActivity(new Intent(getApplicationContext(), Login.class));
+
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -204,5 +234,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 str = str + (Character.toLowerCase(a));
         }
         return str;
+    }
+    @Override
+    public void onBackPressed() {
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+        homeIntent.addCategory(Intent.CATEGORY_HOME);
+        homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(homeIntent);
     }
 }
