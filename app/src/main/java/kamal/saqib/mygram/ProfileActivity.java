@@ -187,7 +187,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         int id = item.getItemId();
          if (id == R.id.log_out) {
              new android.support.v7.app.AlertDialog.Builder(ProfileActivity.this).setTitle("Log Out").
-                     setMessage("Are you sure you want to exit ?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                     setMessage("Are you sure you want to Log out ?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                  @Override
                  public void onClick(DialogInterface dialog, int which) {
                      Toast.makeText(getApplicationContext(), "Logged Out Succesfully", Toast.LENGTH_LONG).show();
@@ -237,9 +237,21 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     }
     @Override
     public void onBackPressed() {
-        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-        homeIntent.addCategory(Intent.CATEGORY_HOME);
-        homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(homeIntent);
+        new android.support.v7.app.AlertDialog.Builder(ProfileActivity.this).setTitle("Exit").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+                homeIntent.addCategory(Intent.CATEGORY_HOME);
+                homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(homeIntent);
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        }).setMessage("Do you want to exit").show();
+
+
     }
 }
