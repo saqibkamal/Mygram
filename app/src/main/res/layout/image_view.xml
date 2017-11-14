@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="200dp"/>
+<de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/profile_image"
+    android:layout_width="96dp"
+    android:layout_height="96dp"
+    app:civ_border_width="2dp"
+    app:civ_border_color="#FF000000" />

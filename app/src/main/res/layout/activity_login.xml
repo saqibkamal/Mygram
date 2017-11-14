@@ -98,7 +98,7 @@
             android:gravity="center"
             android:text="Create Account ? Signup"
             android:textColor="#d9e5f3"
-            android:letterSpacing="0.1"/>
+            android:letterSpacing="0.1" />
         <TextView
             android:id="@+id/resetpassword"
             android:layout_width="match_parent"

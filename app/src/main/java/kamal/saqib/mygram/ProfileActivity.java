@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -36,14 +37,14 @@ import java.util.Random;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
-    TextView Email, Username,address;
+    TextView Email, Username,address,following,following_text,follower,follower_text;
     FirebaseAuth firebaseAuth;
     DatabaseReference databaseReference;
     FirebaseStorage firebaseStorage;
-    String username, addr;
+    String username, addr,email;
     FloatingActionButton fab, fab1, fab2;
     boolean isFABOpen;
-    ImageView profilepic,viewimage,viewuser;
+    ImageView profilepic,viewimage,viewuser,give_user_per;
     int ppno;
     ArrayList<String> urllist;
 
@@ -59,7 +60,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         viewimage = (ImageView) findViewById(R.id.view_images);
         viewuser = (ImageView) findViewById(R.id.view_user);
         address = (TextView) findViewById(R.id.address);
-
+        give_user_per=(ImageView) findViewById(R.id.give_user_permission);
+        following =(TextView) findViewById(R.id.following);
+        following_text =(TextView) findViewById(R.id.followingtext);
+        follower=(TextView) findViewById(R.id.follower);
+        follower_text=(TextView) findViewById(R.id.followertext);
 
         profilepic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +81,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
-        Email.setText(firebaseAuth.getCurrentUser().getEmail().toString());
+        email=firebaseAuth.getCurrentUser().getEmail().toString();
+        Email.setText(email);
 
         final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009a9a")));
@@ -88,6 +94,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         viewuser.setOnClickListener(this);
         viewimage.setOnClickListener(this);
+        give_user_per.setOnClickListener(this);
 
         final Animation fab_open = AnimationUtils.loadAnimation(this, R.anim.fab_open);
         final Animation fab_close = AnimationUtils.loadAnimation(this, R.anim.fab_close);
@@ -120,11 +127,19 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 Userinfo userinfo = dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
 
+                int no_of_followers=0;
+                for (DataSnapshot userp : dataSnapshot.getChildren()) {
+                    Userinfo temp = userp.getValue(Userinfo.class);
+                    if (temp.get_allowed_userlist().contains(email))
+                        no_of_followers++;
+                }
+
                 username = userinfo.getname();
                 addr = userinfo.getAddress();
                 ppno = userinfo.getDefaultprofilepic();
                 username = toTitleCase(username);
                 urllist = userinfo.get_urllist();
+                following.setText(Integer.toString(userinfo.get_allowed_userlist().size()));
 
                 Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/abc.otf");
                 Typeface typeface1 = Typeface.createFromAsset(getAssets(), "fonts/abc1.otf");
@@ -134,6 +149,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 address.setText(addr);
                 address.setTypeface(typeface1);
                 Email.setTypeface(typeface1);
+                following.setTypeface(typeface);
+                following_text.setTypeface(typeface);
+                follower.setText(Integer.toString(no_of_followers));
+                follower.setTypeface(typeface);
+                follower_text.setTypeface(typeface);
 
 
 
@@ -165,11 +185,22 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         else if(v==viewuser){
             Intent i = new Intent(getApplicationContext(), UsersList.class);
             i.putExtra("username", username);
+            i.putExtra("address",  addr);
+            i.putExtra("email",email);
             startActivity(i);
         }
         else if(v==viewimage){
             startActivity(new Intent(getApplicationContext(), downloadimage.class));
 
+        }
+        else if(v==give_user_per){
+            Intent i = new Intent(getApplicationContext(), give_user_permission.class);
+            i.putExtra("username", username);
+            i.putExtra("address",  addr);
+            i.putExtra("email",email);
+
+
+            startActivity(i);
         }
 
 

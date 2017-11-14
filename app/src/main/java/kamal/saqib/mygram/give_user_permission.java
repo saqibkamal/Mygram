@@ -16,6 +16,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,21 +27,22 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
-public class UsersList extends AppCompatActivity {
+public class give_user_permission extends AppCompatActivity {
+
     ListView listView;
-    ArrayList<String> array_name, array_address;
+    ArrayList<String> array_name, array_address,array_email,array_allowed_email;
     ArrayList<Integer> array_profile_pic;
     ArrayList<ArrayList<String>> url_array;
     ArrayAdapter<String> adapter;
     FirebaseStorage firebaseStorage;
     DatabaseReference databaseReference;
     String current_user,current_address,current_email;
+    FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_users_list);
-
+        setContentView(R.layout.activity_give_user_permission);
 
         final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009a9a")));
@@ -51,19 +54,32 @@ public class UsersList extends AppCompatActivity {
         array_address = new ArrayList<String>();
         array_profile_pic = new ArrayList<Integer>();
         url_array = new ArrayList<ArrayList<String>>();
+        array_email=new ArrayList<String>();
+        array_allowed_email=new ArrayList<>();
         Intent i = getIntent();
         current_user = i.getStringExtra("username");
         current_address =i.getStringExtra("address");
         current_email=i.getStringExtra("email");
+        Log.i("EMAIL",current_email);
+        firebaseAuth = FirebaseAuth.getInstance();
+
+
+
 
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+
                 array_name.clear();
                 array_profile_pic.clear();
                 array_address.clear();
                 url_array.clear();
+                FirebaseUser userr = firebaseAuth.getCurrentUser();
+                Userinfo xx = dataSnapshot.child(userr.getUid()).getValue(Userinfo.class);
+                array_allowed_email=xx.get_allowed_userlist();
 
                 for (DataSnapshot user : dataSnapshot.getChildren()) {
 
@@ -72,24 +88,22 @@ public class UsersList extends AppCompatActivity {
                     String add=userinfo.getAddress();
                     String em=userinfo.getEmail();
                     ArrayList<String> x = userinfo.get_urllist();
-                    ArrayList<String> allowed_user=userinfo.get_allowed_userlist();
-                    if (current_email.equals(em))
+                    if (em.equals(current_email))
                         continue;
-                    if(allowed_user.contains(current_email)==false)
+                    if (array_allowed_email.contains(em))
                         continue;
                     nam = toTitleCase(nam);
                     array_name.add(nam);
                     array_address.add(toTitleCase(userinfo.getAddress()));
                     url_array.add(x);
                     array_profile_pic.add(userinfo.getDefaultprofilepic());
+                    array_email.add(em);
+
                 }
 
-                display_adapter adapter = new display_adapter();
+                give_user_permission.display_adapter adapter = new give_user_permission.display_adapter();
                 listView.setAdapter(adapter);
-
-
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -97,13 +111,30 @@ public class UsersList extends AppCompatActivity {
         });
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
 
-                Bundle b = new Bundle();
-                b.putStringArrayList("Urls", url_array.get(position));
-                Intent i = new Intent(getApplicationContext(), show_others_images.class);
-                i.putExtras(b);
-                startActivity(i);
+                databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                        FirebaseUser user = firebaseAuth.getCurrentUser();
+                        Userinfo userinfo = dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
+                        userinfo.add_allowed_user(array_email.get(position));
+                        array_email.remove(position);
+                        array_address.remove(position);
+                        array_name.remove(position);
+                        url_array.remove(position);
+                        array_profile_pic.remove(position);
+
+                        databaseReference.child(user.getUid()).setValue(userinfo);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
         });
 
@@ -159,5 +190,6 @@ public class UsersList extends AppCompatActivity {
 
             return convertView;
         }
+
     }
 }

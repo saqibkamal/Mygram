@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (task.isSuccessful()) {
 
                     FirebaseUser user = firebaseAuth.getCurrentUser();
-                    userinfo = new Userinfo(na, add);
+                    userinfo = new Userinfo(na, add,username);
                     databaseReference.child(user.getUid()).setValue(userinfo);
 
                     progressDialog.hide();

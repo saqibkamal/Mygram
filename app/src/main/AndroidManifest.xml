@@ -34,7 +34,8 @@
         <activity android:name=".capture_image" />
         <activity android:name=".reset_password" />
         <activity android:name=".Mygram" />
-        <activity android:name=".Login"></activity>
+        <activity android:name=".Login" />
+        <activity android:name=".give_user_permission"></activity>
     </application>
 
 </manifest>
