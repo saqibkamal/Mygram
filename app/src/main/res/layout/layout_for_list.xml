@@ -15,11 +15,22 @@
         android:src="@drawable/usrusr"
         app:civ_border_color="#FF000000" />
 
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/check"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        app:civ_border_width="0dp"
+        android:layout_marginTop="17dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/usrusr"
+        app:civ_border_color="#FF000000" />
+
 
 
     <TextView
         android:id="@+id/text1"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:gravity="center_vertical"
         android:minHeight="?android:attr/listPreferredItemHeight"
@@ -30,7 +41,7 @@
         android:layout_marginLeft="75dp"/>
     <TextView
         android:id="@+id/text2"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="30dp"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:paddingLeft="6dip"
@@ -39,4 +50,5 @@
         android:paddingRight="10dip"
         android:layout_marginTop="40dip"
         android:layout_marginLeft="75dp"/>
+
 </RelativeLayout>

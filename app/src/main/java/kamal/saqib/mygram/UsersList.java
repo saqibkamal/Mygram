@@ -60,6 +60,7 @@ public class UsersList extends AppCompatActivity {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
                 array_name.clear();
                 array_profile_pic.clear();
                 array_address.clear();

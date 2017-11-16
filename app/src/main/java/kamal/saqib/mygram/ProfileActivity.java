@@ -1,12 +1,19 @@
 package kamal.saqib.mygram;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,18 +42,20 @@ import java.lang.Object;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
+public class ProfileActivity extends AppCompatActivity implements View.OnClickListener, LocationListener {
 
-    TextView Email, Username,address,following,following_text,follower,follower_text;
+    TextView Email, Username, address, following, following_text, follower, follower_text;
     FirebaseAuth firebaseAuth;
     DatabaseReference databaseReference;
     FirebaseStorage firebaseStorage;
-    String username, addr,email;
+    String username, addr, email, locationprovider;
+    Double lat, lon;
     FloatingActionButton fab, fab1, fab2;
     boolean isFABOpen;
-    ImageView profilepic,viewimage,viewuser,give_user_per;
+    ImageView profilepic, viewimage, viewuser, give_user_per;
     int ppno;
     ArrayList<String> urllist;
+    LocationManager locationManager;
 
 
     @Override
@@ -54,17 +63,27 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationprovider = locationManager.getBestProvider(new Criteria(), false);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location location = locationManager.getLastKnownLocation(locationprovider);
+
+
+
+
         Email = (TextView) findViewById(R.id.email);
         Username = (TextView) findViewById(R.id.name);
         profilepic = (ImageView) findViewById(R.id.profilepic);
         viewimage = (ImageView) findViewById(R.id.view_images);
         viewuser = (ImageView) findViewById(R.id.view_user);
         address = (TextView) findViewById(R.id.address);
-        give_user_per=(ImageView) findViewById(R.id.give_user_permission);
-        following =(TextView) findViewById(R.id.following);
-        following_text =(TextView) findViewById(R.id.followingtext);
-        follower=(TextView) findViewById(R.id.follower);
-        follower_text=(TextView) findViewById(R.id.followertext);
+        give_user_per = (ImageView) findViewById(R.id.give_user_permission);
+        following = (TextView) findViewById(R.id.following);
+        following_text = (TextView) findViewById(R.id.followingtext);
+        follower = (TextView) findViewById(R.id.follower);
+        follower_text = (TextView) findViewById(R.id.followertext);
 
         profilepic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,7 +100,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
-        email=firebaseAuth.getCurrentUser().getEmail().toString();
+        email = firebaseAuth.getCurrentUser().getEmail().toString();
         Email.setText(email);
 
         final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -119,15 +138,26 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         });
 
 
+
+
         databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        lat=location.getLatitude();
+        lon=location.getLongitude();
+
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 Userinfo userinfo = dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
+                userinfo.setlatlon(lat, lon);
+                databaseReference.child(user.getUid()).setValue(userinfo);
 
-                int no_of_followers=0;
+
+ //               Toast.makeText(getApplicationContext(), lat.toString() + lon.toString(), Toast.LENGTH_SHORT).show();
+
+                int no_of_followers = 0;
                 for (DataSnapshot userp : dataSnapshot.getChildren()) {
                     Userinfo temp = userp.getValue(Userinfo.class);
                     if (temp.get_allowed_userlist().contains(email))
@@ -156,7 +186,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 follower_text.setTypeface(typeface);
 
 
-
                 if (ppno >= 0) {
                     RequestOptions options = new RequestOptions();
                     options.fitCenter();
@@ -181,23 +210,20 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         } else if (v == fab2) {
             startActivity(new Intent(getApplicationContext(), capture_image.class));
-        }
-        else if(v==viewuser){
+        } else if (v == viewuser) {
             Intent i = new Intent(getApplicationContext(), UsersList.class);
             i.putExtra("username", username);
-            i.putExtra("address",  addr);
-            i.putExtra("email",email);
+            i.putExtra("address", addr);
+            i.putExtra("email", email);
             startActivity(i);
-        }
-        else if(v==viewimage){
+        } else if (v == viewimage) {
             startActivity(new Intent(getApplicationContext(), downloadimage.class));
 
-        }
-        else if(v==give_user_per){
+        } else if (v == give_user_per) {
             Intent i = new Intent(getApplicationContext(), give_user_permission.class);
             i.putExtra("username", username);
-            i.putExtra("address",  addr);
-            i.putExtra("email",email);
+            i.putExtra("address", addr);
+            i.putExtra("email", email);
 
 
             startActivity(i);
@@ -216,22 +242,22 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-         if (id == R.id.log_out) {
-             new android.support.v7.app.AlertDialog.Builder(ProfileActivity.this).setTitle("Log Out").
-                     setMessage("Are you sure you want to Log out ?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialog, int which) {
-                     Toast.makeText(getApplicationContext(), "Logged Out Succesfully", Toast.LENGTH_LONG).show();
-                     firebaseAuth.signOut();
-                     finish();
-                     startActivity(new Intent(getApplicationContext(), Login.class));
-                 }
-             }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialog, int which) {
-                     dialog.dismiss();
-                 }
-             }).show();
+        if (id == R.id.log_out) {
+            new android.support.v7.app.AlertDialog.Builder(ProfileActivity.this).setTitle("Log Out").
+                    setMessage("Are you sure you want to Log out ?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(getApplicationContext(), "Logged Out Succesfully", Toast.LENGTH_LONG).show();
+                    firebaseAuth.signOut();
+                    finish();
+                    startActivity(new Intent(getApplicationContext(), Login.class));
+                }
+            }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            }).show();
 
 
             return true;
@@ -266,6 +292,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         }
         return str;
     }
+
     @Override
     public void onBackPressed() {
         new android.support.v7.app.AlertDialog.Builder(ProfileActivity.this).setTitle("Exit").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -283,6 +310,53 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             }
         }).setMessage("Do you want to exit").show();
 
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        lat = location.getLatitude();
+        lon = location.getLongitude();
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                Userinfo userinfo = dataSnapshot.child(user.getUid()).getValue(Userinfo.class);
+                userinfo.setlatlon(lat, lon);
+                databaseReference.child(user.getUid()).setValue(userinfo);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.requestLocationUpdates(locationprovider, 400, 1, this);
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
 
     }
 }
